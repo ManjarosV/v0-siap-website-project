@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - SIAP Automator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #66B539;
+      --green-dark: #4a8a28;
+      --dark: #151B1F;
+      --white: #ffffff;
+      --gray: #f5f7f4;
+      --text: #2d3436;
+      --text-dim: #636e72;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--gray);
+    }
+
+    .admin-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-header {
+      background: var(--white);
+      border-bottom: 1px solid #eee;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      color: var(--dark);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .admin-content {
+      flex: 1;
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .admin-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+
+    .admin-subtitle {
+      color: var(--text-dim);
+      margin-bottom: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dim);
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--green);
+      border-bottom-color: var(--green);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .table-container {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge-inactive {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .badge-admin {
+      background: #ffe0b2;
+      color: #e65100;
+    }
+
+    .badge-user {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .badge-approved {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge-pending {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .token-display {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>SIAP Automator - Admin</h1>
+      <div class="header-actions">
+        <button class="logout-btn" onclick="logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
+      
+      <h2 class="admin-title">Painel Administrativo</h2>
+      <p class="admin-subtitle">Gerencie usuários, assinaturas, pagamentos e tokens</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('users')">Usuários</button>
+        <button class="tab-btn" onclick="switchTab('subscriptions')">Assinaturas</button>
+        <button class="tab-btn" onclick="switchTab('payments')">Pagamentos</button>
+        <button class="tab-btn" onclick="switchTab('tokens')">Tokens</button>
+      </div>
+
+      <!-- Tab: Usuários -->
+      <div id="users" class="tab-content active">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Data de Criação</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <tr><td colspan="5" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Assinaturas -->
+      <div id="subscriptions" class="tab-content">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuário ID</th>
+                <th>Plano</th>
+                <th>Status</th>
+                <th>Data de Início</th>
+                <th>Expiração</th>
+              </tr>
+            </thead>
+            <tbody id="subscriptionsTable">
+              <tr><td colspan="6" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Pagamentos -->
+      <div id="payments" class="tab-content">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Valor</th>
+                <th>Plano</th>
+                <th>Status</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTable">
+              <tr><td colspan="6" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Tokens -->
+      <div id="tokens" class="tab-content">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>Email</th>
+                <th>Token</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody id="tokensTable">
+              <tr><td colspan="7" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkAdmin() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+        const user = await res.json();
+        if (user.role !== 'admin') {
+          window.location.href = '/dashboard';
+          return;
+        }
+      } catch (err) {
+        window.location.href = '/login';
+      }
+    }
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+
+      // Load data
+      if (tabName === 'users') loadUsers();
+      else if (tabName === 'subscriptions') loadSubscriptions();
+      else if (tabName === 'payments') loadPayments();
+      else if (tabName === 'tokens') loadTokens();
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/auth/admin/users');
+        if (!res.ok) throw new Error('Erro ao carregar usuários');
+        const users = await res.json();
+
+        const tbody = document.getElementById('usersTable');
+        tbody.innerHTML = users.map(user => `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.name || 'N/A'}</td>
+            <td>${user.email}</td>
+            <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}">${user.role}</span></td>
+            <td>${new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('usersTable').innerHTML = `<tr><td colspan="5" class="error-message">${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadSubscriptions() {
+      try {
+        const res = await fetch('/api/auth/admin/subscriptions');
+        if (!res.ok) throw new Error('Erro ao carregar assinaturas');
+        const subscriptions = await res.json();
+
+        const tbody = document.getElementById('subscriptionsTable');
+        tbody.innerHTML = subscriptions.map(sub => `
+          <tr>
+            <td>${sub.id}</td>
+            <td>${sub.userId}</td>
+            <td>${sub.planType.charAt(0).toUpperCase() + sub.planType.slice(1)}</td>
+            <td><span class="badge ${sub.status === 'active' ? 'badge-active' : 'badge-inactive'}">${sub.status}</span></td>
+            <td>${new Date(sub.startDate).toLocaleDateString('pt-BR')}</td>
+            <td>${sub.expiryDate ? new Date(sub.expiryDate).toLocaleDateString('pt-BR') : 'N/A'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('subscriptionsTable').innerHTML = `<tr><td colspan="6" class="error-message">${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadPayments() {
+      try {
+        const res = await fetch('/api/auth/admin/payments');
+        if (!res.ok) throw new Error('Erro ao carregar pagamentos');
+        const payments = await res.json();
+
+        const tbody = document.getElementById('paymentsTable');
+        tbody.innerHTML = payments.map(payment => `
+          <tr>
+            <td>${payment.id}</td>
+            <td>${payment.email}</td>
+            <td>R$ ${payment.amount}</td>
+            <td>${payment.planType}</td>
+            <td><span class="badge ${payment.status === 'approved' ? 'badge-approved' : 'badge-pending'}">${payment.status}</span></td>
+            <td>${new Date(payment.createdAt).toLocaleDateString('pt-BR')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('paymentsTable').innerHTML = `<tr><td colspan="6" class="error-message">${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadTokens() {
+      try {
+        const res = await fetch('/api/tokens/admin/all');
+        if (!res.ok) throw new Error('Erro ao carregar tokens');
+        const tokens = await res.json();
+
+        const tbody = document.getElementById('tokensTable');
+        tbody.innerHTML = tokens.map(token => `
+          <tr>
+            <td>${token.id}</td>
+            <td>${token.userName}</td>
+            <td>${token.email}</td>
+            <td><span class="token-display">${token.token}</span></td>
+            <td>${token.name}</td>
+            <td><span class="badge ${token.isActive ? 'badge-active' : 'badge-inactive'}">${token.isActive ? 'Ativo' : 'Revogado'}</span></td>
+            <td>${new Date(token.createdAt).toLocaleDateString('pt-BR')}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('tokensTable').innerHTML = `<tr><td colspan="7" class="error-message">${err.message}</td></tr>`;
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    }
+
+    // Check admin and load initial data
+    checkAdmin();
+    loadUsers();
+  </script>
+</body>
+</html>

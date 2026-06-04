@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>SIAP Automator — Facilite seu planejamento de aula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #66B539;
+  --green-dark: #4a8a28;
+  --green-light: #E8F7DD;
+  --dark: #151B1F;
+  --dark2: #374148;
+  --white: #ffffff;
+  --gray: #f5f7f4;
+  --text: #2d3436;
+  --text-dim: #636e72;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 60px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(102,181,57,0.15);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 20px;
+  color: var(--dark);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo span { color: var(--green); }
+.nav-logo .dot {
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  display: inline-block;
+}
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a {
+  text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  color: var(--text-dim);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--green); }
+.nav-cta {
+  background: var(--green);
+  color: white;
+  border: none; border-radius: 8px;
+  padding: 10px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500; font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none;
+}
+.nav-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 120px 60px 80px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fff5 0%, #ffffff 60%, #f0fae8 100%);
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(102,181,57,0.12) 0%, transparent 50%),
+    radial-gradient(circle at 10% 80%, rgba(102,181,57,0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(102,181,57,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102,181,57,0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.hero-content {
+  max-width: 600px;
+  position: relative; z-index: 1;
+  animation: fadeUp 0.8s ease both;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  border: 1px solid rgba(102,181,57,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 28px;
+}
+.hero-badge .pulse {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 5vw, 64px);
+  font-weight: 800;
+  line-height: 1.08;
+  color: var(--dark);
+  margin-bottom: 24px;
+}
+h1 .highlight {
+  color: var(--green);
+  position: relative;
+}
+h1 .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: var(--green);
+  border-radius: 2px;
+  opacity: 0.3;
+}
+.hero-sub {
+  font-size: 18px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--green);
+  color: white;
+  border: none; border-radius: 10px;
+  padding: 16px 36px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,181,57,0.3); }
+.btn-secondary {
+  background: transparent;
+  color: var(--dark);
+  border: 2px solid rgba(55,65,72,0.2);
+  border-radius: 10px;
+  padding: 14px 32px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-secondary:hover { border-color: var(--green); color: var(--green); }
+.hero-visual {
+  position: absolute;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 48%;
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 1s 0.3s ease both;
+}
+.hero-mockup {
+  width: 90%;
+  max-width: 520px;
+  background: var(--dark);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 40px 80px rgba(21,27,31,0.25), 0 0 0 1px rgba(255,255,255,0.05);
+  position: relative;
+}
+.mockup-bar {
+  display: flex; gap: 7px; margin-bottom: 16px;
+}
+.mockup-bar span {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.mockup-bar span:nth-child(1) { background: #ff5f57; }
+.mockup-bar span:nth-child(2) { background: #febc2e; }
+.mockup-bar span:nth-child(3) { background: #28c840; }
+.mockup-screen {
+  background: #1e2a1a;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.log-line { display: flex; gap: 8px; margin-bottom: 2px; }
+.log-time { color: #555; }
+.log-tag {
+  background: var(--green);
+  color: white;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+.log-green { color: #66B539; }
+.log-blue { color: #74b9ff; }
+.log-yellow { color: #fdcb6e; }
+.log-dim { color: #636e72; }
+.log-white { color: #dfe6e9; }
+.cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--green);
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.hero-stats {
+  display: flex; gap: 32px;
+  margin-top: 48px;
+}
+.stat { }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--green);
+}
+.stat-label {
+  font-size: 13px; color: var(--text-dim);
+}
+
+/* FEATURES */
+.features {
+  padding: 100px 60px;
+  background: var(--white);
+}
+.section-label {
+  font-size: 12px; font-weight: 600;
+  color: var(--green);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px;
+  color: var(--text-dim);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 64px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.feature-card {
+  background: var(--gray);
+  border-radius: 16px;
+  padding: 36px 32px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.feature-card:hover {
+  border-color: rgba(102,181,57,0.2);
+  box-shadow: 0 12px 40px rgba(102,181,57,0.1);
+  transform: translateY(-4px);
+}
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-icon {
+  width: 52px; height: 52px;
+  background: var(--green-light);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.feature-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+.feature-card p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* COMO FUNCIONA */
+.how {
+  padding: 100px 60px;
+  background: var(--dark);
+  position: relative;
+  overflow: hidden;
+}
+.how::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(102,181,57,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.how .section-title { color: white; }
+.how .section-label { color: var(--green); }
+.how .section-sub { color: rgba(255,255,255,0.5); }
+.steps {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 32px; left: 32px; right: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), rgba(102,181,57,0.2));
+}
+.step {
+  flex: 1;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+.step-num {
+  width: 64px; height: 64px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 0 0 8px rgba(102,181,57,0.15);
+}
+.step h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+.step p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+
+/* PRICING */
+.pricing {
+  padding: 100px 60px;
+  background: var(--gray);
+}
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.plan {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 32px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.plan:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(102,181,57,0.15); }
+.plan.popular {
+  border-color: var(--green);
+  background: white;
+}
+.plan.popular::before {
+  content: 'Mais popular';
+  position: absolute;
+  top: 16px; right: -28px;
+  background: var(--green);
+  color: white;
+  font-size: 11px; font-weight: 600;
+  padding: 5px 40px;
+  transform: rotate(45deg);
+  transform-origin: center;
+}
+.plan-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+}
+.plan-price {
+  font-family: 'Syne', sans-serif;
+  font-size: 52px; font-weight: 800;
+  color: var(--dark);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.plan-price sup {
+  font-size: 22px;
+  font-weight: 600;
+  vertical-align: top;
+  margin-top: 10px;
+}
+.plan-period {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+.plan-features {
+  list-style: none;
+  margin-bottom: 36px;
+}
+.plan-features li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray);
+}
+.plan-features li:last-child { border-bottom: none; }
+.plan-features li::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.plan-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid var(--green);
+  background: transparent;
+  color: var(--green);
+}
+.plan.popular .plan-btn {
+  background: var(--green);
+  color: white;
+}
+.plan-btn:hover {
+  background: var(--green);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* FOOTER */
+footer {
+  background: var(--dark);
+  padding: 48px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 18px;
+  color: white;
+}
+.footer-logo span { color: var(--green); }
+footer p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(21,27,31,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  width: 90%; max-width: 480px;
+  animation: modalIn 0.3s ease both;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: var(--gray);
+  border: none; border-radius: 50%;
+  width: 36px; height: 36px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+.modal-close:hover { background: var(--green); color: white; }
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px; font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+.modal-plan-info {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--green-light);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+.modal-plan-name { font-size: 15px; font-weight: 500; color: var(--dark2); }
+.modal-plan-price {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px; font-weight: 800;
+  color: var(--green);
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--dark);
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-group input:focus { border-color: var(--green); }
+.modal-submit {
+  width: 100%;
+  padding: 16px;
+  background: var(--green);
+  color: white;
+  border: none; border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.modal-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
+.modal-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 14px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes typewriter {
+  from { width: 0; }
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .hero-visual { display: none; }
+  .features { padding: 60px 24px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .how { padding: 60px 24px; }
+  .steps { flex-direction: column; }
+  .steps::before { display: none; }
+  .pricing { padding: 60px 24px; }
+  .plans { grid-template-columns: 1fr; max-width: 400px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; padding: 36px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">
+    <span class="dot"></span>
+    SIAP <span>Automator</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Recursos</a></li>
+    <li><a href="#how">Como funciona</a></li>
+    <li><a href="#pricing">Planos</a></li>
+  </ul>
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <a href="/login" style="text-decoration: none; color: var(--text-dim); font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--text-dim)'">Login</a>
+    <a href="/registro" class="nav-cta">Registrar</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="pulse"></span>
+      Automação inteligente para professores
+    </div>
+    <h1>Facilite seu <span class="highlight">planejamento</span> de aula</h1>
+    <p class="hero-sub">O SIAP Automator preenche automaticamente seu planejamento no SIAP — habilidades, conteúdos, metodologia e avaliação em segundos.</p>
+    <div class="hero-btns">
+      <a href="/registro" class="btn-primary">Assinar agora →</a>
+      <a href="#how" class="btn-secondary">Ver como funciona</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">90%</div>
+        <div class="stat-label">menos tempo</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">automático</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">IA</div>
+        <div class="stat-label">integrada</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-mockup">
+      <div class="mockup-bar">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="mockup-screen">
+        <div class="log-line"><span class="log-time">08:41</span><span class="log-tag">✓</span><span class="log-green">Sistema pronto. V12.8</span></div>
+        <div class="log-line"><span class="log-time">08:41</span><span class="log-blue">Iniciando aula 1 de 3...</span></div>
+        <div class="log-line"><span class="log-time">08:41</span><span class="log-white">Buscando itens na página...</span></div>
+        <div class="log-line"><span class="log-time">08:41</span><span class="log-green">35 itens encontrados.</span></div>
+        <div class="log-line"><span class="log-time">08:41</span><span class="log-tag">P1</span><span class="log-yellow">Gerando plano de aula...</span></div>
+        <div class="log-line"><span class="log-time">08:42</span><span class="log-green">Habilidade: (EF05CI11-A) Associar o movimento...</span></div>
+        <div class="log-line"><span class="log-time">08:42</span><span class="log-tag">P2</span><span class="log-yellow">Preenchendo formulário...</span></div>
+        <div class="log-line"><span class="log-time">08:42</span><span class="log-green">Metodologia gerada (657 chars)</span></div>
+        <div class="log-line"><span class="log-time">08:42</span><span class="log-green">Avaliação gerada (392 chars)</span></div>
+        <div class="log-line"><span class="log-time">08:42</span><span class="log-tag">✓</span><span class="log-green">Salvando aula 1...</span><span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-label">Recursos</div>
+    <h2 class="section-title">Tudo que você precisa<br>para planejar mais rápido</h2>
+    <p class="section-sub">Desenvolvido especificamente para o SIAP do Estado de Goiás, com IA integrada para gerar conteúdo de qualidade.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>IA que entende o SIAP</h3>
+      <p>Seleciona automaticamente habilidades e conteúdos do currículo, gera metodologia e avaliação coerentes com a BNCC.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Múltiplas aulas de uma vez</h3>
+      <p>Configure a quantidade de aulas e deixe o automator preencher todas sequencialmente, sem intervenção manual.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Cada aula é única</h3>
+      <p>Sistema anti-repetição garante que cada aula tenha abordagem, habilidade e conteúdos diferentes.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📚</div>
+      <h3>Todas as matérias</h3>
+      <p>Funciona com qualquer componente curricular e unidade temática — basta selecionar na barra lateral.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <h3>Atualização automática</h3>
+      <p>O script se atualiza sozinho via Tampermonkey. Você sempre usa a versão mais recente sem precisar reinstalar.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Acesso por token</h3>
+      <p>Cada assinante recebe um token exclusivo. Acesso seguro e controlado, cancelamento sem burocracia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="how" id="how">
+  <div class="reveal">
+    <div class="section-label">Como funciona</div>
+    <h2 class="section-title">Em 4 passos simples</h2>
+    <p class="section-sub">Instale uma vez e deixe a IA trabalhar por você no SIAP.</p>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Assine o plano</h3>
+      <p>Escolha semanal, mensal ou trimestral. Pagamento via Mercado Pago, aprovação instantânea.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Instale o Tampermonkey</h3>
+      <p>Extensão gratuita para Chrome ou Firefox. Compatível com qualquer computador.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Cole seu token</h3>
+      <p>Você recebe um token exclusivo por e-mail. Cole na barra lateral do script e pronto.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Clique em Iniciar</h3>
+      <p>Abra o planejamento no SIAP, configure a quantidade de aulas e clique em Iniciar. A IA faz o resto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="reveal" style="text-align:center; margin-bottom: 64px;">
+    <div class="section-label">Planos</div>
+    <h2 class="section-title">Simples e acessível</h2>
+    <p class="section-sub" style="margin: 0 auto;">Sem contratos. Cancele quando quiser.</p>
+  </div>
+  <div class="plans reveal">
+    <div class="plan popular">
+      <div class="plan-name">Mensal</div>
+      <div class="plan-price"><sup>R$</sup>29<span style="font-size:28px">,90</span></div>
+      <div class="plan-period">por mês</div>
+      <ul class="plan-features">
+        <li>Acesso completo ao script</li>
+        <li>Token exclusivo</li>
+        <li>Atualizações automáticas</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('Mensal', 'R$ 29,90')">Assinar agora</button>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Trimestral</div>
+      <div class="plan-price"><sup>R$</sup>69<span style="font-size:28px">,90</span></div>
+      <div class="plan-period">por 3 meses</div>
+      <ul class="plan-features">
+        <li>Acesso completo ao script</li>
+        <li>Token exclusivo</li>
+        <li>Atualizações automáticas</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <button class="plan-btn" onclick="openModal('Trimestral', 'R$ 69,90')">Assinar agora</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SIAP <span>Automator</span></div>
+  <p>Facilite seu planejamento de aula · Goiás, Brasil</p>
+  <p style="color:rgba(255,255,255,0.2); font-size:12px;">© 2026 SIAP Automator</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2>Finalizar assinatura</h2>
+    <p style="color:var(--text-dim); font-size:14px;">Você receberá seu token por e-mail após a confirmação do pagamento.</p>
+    <div class="modal-plan-info">
+      <span class="modal-plan-name" id="modal-plan-name">Mensal</span>
+      <span class="modal-plan-price" id="modal-plan-price">R$ 29,90</span>
+    </div>
+    <div class="form-group">
+      <label>Nome completo</label>
+      <input type="text" placeholder="Seu nome" id="input-name">
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" placeholder="seu@email.com" id="input-email">
+    </div>
+    <button class="modal-submit" onclick="handleCheckout()">Pagar com Mercado Pago →</button>
+    <p class="modal-note">🔒 Pagamento seguro via Mercado Pago. Após confirmação, você recebe o token em até 5 minutos.</p>
+  </div>
+</div>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 100);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Modal
+let selectedPlan = '';
+function openModal(plan, price) {
+  selectedPlan = plan;
+  document.getElementById('modal-plan-name').textContent = plan;
+  document.getElementById('modal-plan-price').textContent = price;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+async function handleCheckout() {
+  const name  = document.getElementById('input-name').value.trim();
+  const email = document.getElementById('input-email').value.trim();
+  if (!name || !email) { alert('Preencha nome e e-mail para continuar.'); return; }
+  if (!email.includes('@')) { alert('E-mail inválido.'); return; }
+
+  const btn = document.querySelector('.modal-submit');
+  btn.textContent = 'Aguarde...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/criar-pagamento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: name, email: email, plano: selectedPlan })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url; // redireciona para o checkout do MP
+    } else {
+      alert('Erro ao criar pagamento. Tente novamente.');
+      btn.textContent = 'Pagar com Mercado Pago →';
+      btn.disabled = false;
+    }
+  } catch (e) {
+    alert('Erro de conexão. Tente novamente.');
+    btn.textContent = 'Pagar com Mercado Pago →';
+    btn.disabled = false;
+  }
+}
+
+// Escape fecha modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

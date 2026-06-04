@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SIAP Automator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #66B539;
+      --green-dark: #4a8a28;
+      --dark: #151B1F;
+      --white: #ffffff;
+      --gray: #f5f7f4;
+      --text: #2d3436;
+      --text-dim: #636e72;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--gray);
+    }
+
+    .dashboard-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-header {
+      background: var(--white);
+      border-bottom: 1px solid #eee;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dashboard-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      color: var(--dark);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .dashboard-content {
+      flex: 1;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .dashboard-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+
+    .dashboard-subtitle {
+      color: var(--text-dim);
+      margin-bottom: 30px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-label {
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .info-value {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .status-active {
+      color: #4caf50;
+      font-weight: 600;
+    }
+
+    .status-inactive {
+      color: #f44336;
+      font-weight: 600;
+    }
+
+    .license-key-box {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .copy-btn {
+      padding: 6px 12px;
+      background: var(--green);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .token-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .token-item {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid var(--green);
+    }
+
+    .token-info {
+      flex: 1;
+    }
+
+    .token-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .token-date {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .token-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .token-copy-btn, .token-revoke-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .token-copy-btn {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    .token-copy-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .token-revoke-btn {
+      background: #f0f0f0;
+      color: var(--text);
+    }
+
+    .token-revoke-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .admin-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: var(--green);
+      color: var(--white);
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .admin-link:hover {
+      background: var(--green-dark);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+    }
+
+    .info-box {
+      background: #e8f5e9;
+      border-left: 4px solid var(--green);
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #2e7d32;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>SIAP Automator</h1>
+      <div class="header-actions">
+        <div class="user-info" id="userInfo">Carregando...</div>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+      <h2 class="dashboard-title">Bem-vindo!</h2>
+      <p class="dashboard-subtitle">Gerencie sua assinatura, license key e tokens de acesso</p>
+
+      <div class="cards-grid" id="cardsContainer">
+        <div class="loading">Carregando dados...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        // Carregar dados do usuário
+        const userRes = await fetch('/api/auth/me');
+        if (!userRes.ok) {
+          window.location.href = '/login';
+          return;
+        }
+        const user = await userRes.json();
+        document.getElementById('userInfo').textContent = user.name || user.email;
+
+        // Carregar subscription
+        const subRes = await fetch('/api/auth/subscription');
+        const subscription = subRes.ok ? await subRes.json() : null;
+
+        // Carregar license
+        const licRes = await fetch('/api/auth/license');
+        const license = licRes.ok ? await licRes.json() : null;
+
+        // Carregar tokens
+        const tokRes = await fetch('/api/tokens/list');
+        const tokens = tokRes.ok ? await tokRes.json() : [];
+
+        // Renderizar cards
+        const container = document.getElementById('cardsContainer');
+        container.innerHTML = '';
+
+        // Card de subscription
+        if (subscription) {
+          const subCard = document.createElement('div');
+          subCard.className = 'card';
+          
+          // Verificar se expirou
+          const agora = new Date();
+          const expira = subscription.expiryDate ? new Date(subscription.expiryDate) : null;
+          const expirado = expira && agora > expira;
+          const diasRestantes = expira ? Math.ceil((expira - agora) / (1000 * 60 * 60 * 24)) : null;
+          
+          subCard.innerHTML = `
+            <div class="card-title">📋 Sua Assinatura</div>
+            <div class="card-content">
+              <div class="info-row">
+                <span class="info-label">Plano</span>
+                <span class="info-value">${subscription.planType.charAt(0).toUpperCase() + subscription.planType.slice(1)}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value ${expirado ? 'status-inactive' : 'status-active'}">
+                  ${expirado ? '✗ Expirado' : '✓ Ativo'}
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Data de Inicio</span>
+                <span class="info-value">${new Date(subscription.startDate).toLocaleDateString('pt-BR')}</span>
+              </div>
+              ${subscription.expiryDate ? `
+                <div class="info-row">
+                  <span class="info-label">Expiracao</span>
+                  <span class="info-value">${new Date(subscription.expiryDate).toLocaleDateString('pt-BR')} ${!expirado && diasRestantes ? `(${diasRestantes} dias)` : ''}</span>
+                </div>
+              ` : ''}
+              ${expirado ? `
+                <a href="/pagamento" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: var(--green); color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">Renovar Assinatura</a>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(subCard);
+        } else {
+          // Usuario sem assinatura - mostrar card para comprar
+          const noSubCard = document.createElement('div');
+          noSubCard.className = 'card';
+          noSubCard.innerHTML = `
+            <div class="card-title">📋 Assinatura</div>
+            <div class="card-content">
+              <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 15px;">🔒</div>
+                <p style="color: var(--text-dim); margin-bottom: 15px;">Voce ainda nao tem uma assinatura ativa.</p>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">Adquira um plano para ter acesso ao SIAP Automator.</p>
+                <a href="/pagamento" style="display: inline-block; padding: 12px 24px; background: var(--green); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">Adquirir Plano</a>
+              </div>
+            </div>
+          `;
+          container.appendChild(noSubCard);
+        }
+
+        // Card de license
+        if (license) {
+          const licCard = document.createElement('div');
+          licCard.className = 'card';
+          licCard.innerHTML = `
+            <div class="card-title">🔑 Sua License Key</div>
+            <div class="card-content">
+              <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value ${license.isActive ? 'status-active' : 'status-inactive'}">
+                  ${license.isActive ? '✓ Ativa' : 'Inativa'}
+                </span>
+              </div>
+              <div class="license-key-box">
+                <span id="licenseKeyText">${license.licenseKey}</span>
+                <button class="copy-btn" onclick="copyLicenseKey('${license.licenseKey}')">Copiar</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(licCard);
+        }
+
+        // Card de tokens
+        const tokCard = document.createElement('div');
+        tokCard.className = 'card';
+        tokCard.innerHTML = `
+          <div class="card-title">🔐 Seus Tokens de Acesso</div>
+          <div class="card-content">
+            <div class="info-box">
+              ℹ️ Seus tokens são gerados automaticamente. Use-os para autenticar requisições de API.
+            </div>
+            <div class="token-list" id="tokenList">
+              ${tokens.length === 0 ? '<p style="color: var(--text-dim); text-align: center; padding: 20px;">Nenhum token gerado ainda</p>' : tokens.map(token => `
+                <div class="token-item">
+                  <div class="token-info">
+                    <div class="token-name">${token.name}</div>
+                    <div class="token-date">Criado em ${new Date(token.createdAt).toLocaleDateString('pt-BR')}</div>
+                  </div>
+                  <div class="token-actions">
+                    <button class="token-revoke-btn" onclick="revokeToken('${token.id}')">Revogar</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        container.appendChild(tokCard);
+
+        // Card admin se for admin
+        if (user.role === 'admin') {
+          const adminCard = document.createElement('div');
+          adminCard.className = 'card';
+          adminCard.innerHTML = `
+            <div class="card-title">⚙️ Painel Admin</div>
+            <div class="card-content">
+              <p style="color: var(--text-dim); font-size: 14px;">Você tem acesso ao painel administrativo</p>
+              <a href="/admin.html" class="admin-link" style="display: inline-block; margin-top: 15px;">Acessar Painel Admin</a>
+            </div>
+          `;
+          container.appendChild(adminCard);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dashboard:', err);
+        document.getElementById('cardsContainer').innerHTML = '<div class="empty-state"><p>Erro ao carregar dados</p></div>';
+      }
+    }
+
+    function copyLicenseKey(key) {
+      navigator.clipboard.writeText(key).then(() => {
+        alert('License key copiada!');
+      });
+    }
+
+    async function revokeToken(tokenId) {
+      if (confirm('Tem certeza que deseja revogar este token?')) {
+        try {
+          const res = await fetch(`/api/tokens/revoke/${tokenId}`, { method: 'POST' });
+          if (res.ok) {
+            alert('Token revogado com sucesso');
+            loadDashboard();
+          } else {
+            alert('Erro ao revogar token');
+          }
+        } catch (err) {
+          alert('Erro: ' + err.message);
+        }
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

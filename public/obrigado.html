@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obrigado — SIAP Automator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: linear-gradient(135deg, #f8fff5, #ffffff);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 60px 48px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(102,181,57,0.12);
+  border: 1px solid rgba(102,181,57,0.15);
+}
+.emoji { font-size: 72px; margin-bottom: 24px; }
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px; font-weight: 800;
+  color: #151B1F;
+  margin-bottom: 12px;
+}
+p {
+  color: #636e72;
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.wa-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #25D366; color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-size: 16px; font-weight: 500;
+  transition: all 0.2s;
+}
+.wa-btn:hover { background: #1ebe5d; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
+.number { margin-top: 16px; font-size: 13px; color: #b2bec3; }
+.back { margin-top: 24px; font-size: 13px; }
+.back a { color: #66B539; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="emoji">🎉</div>
+  <h1>Pagamento confirmado!</h1>
+  <p>Obrigado pela sua assinatura do <strong>SIAP Automator</strong>.<br>
+  Entre em contato pelo WhatsApp para receber seu token de acesso.</p>
+  <a class="wa-btn" id="wa-link" href="https://wa.me/5562984657594" target="_blank">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.122 1.532 5.857L.078 23.629a.75.75 0 00.922.922l5.772-1.454A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.502-5.243-1.381l-.374-.214-3.878.978.997-3.768-.234-.389A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+    Falar no WhatsApp
+  </a>
+  <p class="number">+55 (62) 98465-7594</p>
+  <p class="back"><a href="/site">← Voltar ao site</a></p>
+</div>
+<script>
+// Pega nome/email da URL se vier do MP
+const params = new URLSearchParams(window.location.search);
+const nome = params.get('payer_first_name') || '';
+const plano = params.get('external_reference')?.split('|')[1] || '';
+if (nome || plano) {
+  const msg = encodeURIComponent(`Olá! Acabei de pagar o SIAP Automator${plano ? ' — Plano ' + plano : ''}.${nome ? ' Nome: ' + nome : ''}`);
+  document.getElementById('wa-link').href = `https://wa.me/5562984657594?text=${msg}`;
+}
+</script>
+</body>
+</html>

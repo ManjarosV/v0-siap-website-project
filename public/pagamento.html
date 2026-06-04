@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento PIX - SIAP Automator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #66B539;
+      --green-dark: #4a8a28;
+      --dark: #151B1F;
+      --white: #ffffff;
+      --gray: #f5f7f4;
+      --text: #2d3436;
+      --text-dim: #636e72;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--gray);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Seleção de Plano */
+    .plan-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .plan-option {
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .plan-option:hover {
+      border-color: var(--green);
+    }
+
+    .plan-option.selected {
+      border-color: var(--green);
+      background: #f0faf0;
+    }
+
+    .plan-option .plan-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .plan-option .plan-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .plan-option .plan-period {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .plan-option .plan-badge {
+      background: var(--green);
+      color: white;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    /* Botão de Pagamento */
+    .pay-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .pay-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .pay-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* QR Code Section */
+    .qr-section {
+      display: none;
+      text-align: center;
+    }
+
+    .qr-section.active {
+      display: block;
+    }
+
+    .qr-code {
+      margin: 20px 0;
+    }
+
+    .qr-code img {
+      max-width: 250px;
+      border-radius: 12px;
+    }
+
+    .pix-copy {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+
+    .pix-copy label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .pix-copy-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pix-copy input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .copy-btn {
+      padding: 10px 20px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--green-dark);
+    }
+
+    /* Status */
+    .status {
+      text-align: center;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status.approved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: var(--green);
+    }
+
+    .info-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .timer {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>Pagamento PIX</h1>
+        <p>Escolha seu plano e pague via PIX</p>
+      </div>
+
+      <!-- Seleção de Plano -->
+      <div id="planSection">
+        <div class="plan-selector">
+          <div class="plan-option selected" data-plano="mensal">
+            <div class="plan-name">Mensal</div>
+            <div class="plan-price">R$ 29,90</div>
+            <div class="plan-period">por 30 dias</div>
+          </div>
+          <div class="plan-option" data-plano="trimestral">
+            <div class="plan-name">Trimestral</div>
+            <div class="plan-price">R$ 69,90</div>
+            <div class="plan-period">por 90 dias</div>
+            <div class="plan-badge">Economia de R$ 20</div>
+          </div>
+        </div>
+
+        <button class="pay-btn" id="payBtn" onclick="criarPagamento()">
+          Gerar QR Code PIX
+        </button>
+
+        <p class="info-text">
+          Voce precisa estar logado para continuar
+        </p>
+      </div>
+
+      <!-- QR Code PIX -->
+      <div class="qr-section" id="qrSection">
+        <div class="status pending" id="statusPending">
+          <div class="status-icon">⏳</div>
+          <p><span class="loader"></span> Aguardando pagamento...</p>
+          <p class="timer" id="timer"></p>
+        </div>
+
+        <div class="qr-code">
+          <img id="qrCodeImg" src="" alt="QR Code PIX">
+        </div>
+
+        <div class="pix-copy">
+          <label>Codigo PIX (Copia e Cola)</label>
+          <div class="pix-copy-input">
+            <input type="text" id="pixCode" readonly>
+            <button class="copy-btn" onclick="copiarPix()">Copiar</button>
+          </div>
+        </div>
+
+        <div class="status approved" id="statusApproved" style="display: none;">
+          <div class="status-icon">✅</div>
+          <p><strong>Pagamento confirmado!</strong></p>
+          <p>Sua chave foi gerada. Acesse o dashboard.</p>
+          <button class="pay-btn" style="margin-top: 15px;" onclick="window.location.href='/dashboard'">
+            Ir para o Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
+  </div>
+
+  <script>
+    let selectedPlan = 'mensal';
+    let currentPaymentId = null;
+    let checkInterval = null;
+    let currentUser = null;
+
+    // Selecionar plano
+    document.querySelectorAll('.plan-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.plan-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedPlan = option.dataset.plano;
+      });
+    });
+
+    // Verificar se esta logado
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+          alert('Voce precisa estar logado para fazer o pagamento');
+          window.location.href = '/login?redirect=/pagamento';
+          return false;
+        }
+        currentUser = await res.json();
+        return true;
+      } catch (err) {
+        window.location.href = '/login?redirect=/pagamento';
+        return false;
+      }
+    }
+
+    // Criar pagamento PIX
+    async function criarPagamento() {
+      const isAuth = await checkAuth();
+      if (!isAuth) return;
+
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loader"></span> Gerando...';
+
+      try {
+        const res = await fetch('/criar-pagamento-pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plano: selectedPlan,
+            userId: currentUser.id,
+            email: currentUser.email,
+            nome: currentUser.name
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          currentPaymentId = data.paymentId;
+          
+          // Mostrar QR Code
+          document.getElementById('planSection').style.display = 'none';
+          document.getElementById('qrSection').classList.add('active');
+          
+          if (data.qrCodeBase64) {
+            document.getElementById('qrCodeImg').src = `data:image/png;base64,${data.qrCodeBase64}`;
+          }
+          
+          document.getElementById('pixCode').value = data.qrCode || '';
+          
+          // Iniciar verificacao automatica
+          startPaymentCheck();
+        } else {
+          alert('Erro ao criar pagamento: ' + (data.erro || 'Tente novamente'));
+          btn.disabled = false;
+          btn.innerHTML = 'Gerar QR Code PIX';
+        }
+      } catch (err) {
+        alert('Erro de conexao. Tente novamente.');
+        btn.disabled = false;
+        btn.innerHTML = 'Gerar QR Code PIX';
+      }
+    }
+
+    // Copiar codigo PIX
+    function copiarPix() {
+      const pixCode = document.getElementById('pixCode');
+      pixCode.select();
+      document.execCommand('copy');
+      
+      const btn = event.target;
+      btn.textContent = 'Copiado!';
+      setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+    }
+
+    // Verificar pagamento a cada 5 segundos
+    function startPaymentCheck() {
+      let seconds = 0;
+      
+      checkInterval = setInterval(async () => {
+        seconds += 5;
+        document.getElementById('timer').textContent = `Verificando ha ${seconds} segundos...`;
+        
+        try {
+          const res = await fetch(`/verificar-pagamento/${currentPaymentId}`);
+          const data = await res.json();
+          
+          if (data.status === 'approved') {
+            clearInterval(checkInterval);
+            
+            document.getElementById('statusPending').style.display = 'none';
+            document.getElementById('statusApproved').style.display = 'block';
+            document.querySelector('.qr-code').style.display = 'none';
+            document.querySelector('.pix-copy').style.display = 'none';
+          }
+        } catch (err) {
+          console.error('Erro ao verificar pagamento:', err);
+        }
+      }, 5000);
+    }
+
+    // Verificar auth ao carregar
+    checkAuth();
+  </script>
+</body>
+</html>
