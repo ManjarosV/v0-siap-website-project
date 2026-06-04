@@ -58,15 +58,25 @@ app.use('/webhook', tokenWebhookRoutes);
 app.post('/criar-pagamento-pix', async (req, res) => {
   const { plano, userId, email, nome } = req.body;
 
+  // Verificar se o token do Mercado Pago está configurado
+  if (!MP_ACCESS_TOKEN) {
+    console.error('[PIX] ERRO: MP_ACCESS_TOKEN nao configurado no .env');
+    return res.status(500).json({ 
+      erro: 'Mercado Pago nao configurado. Adicione MP_ACCESS_TOKEN no arquivo .env' 
+    });
+  }
+
   const planoKey = plano?.toLowerCase();
   if (!PLANOS[planoKey]) {
-    return res.status(400).json({ erro: 'Plano inválido' });
+    return res.status(400).json({ erro: 'Plano invalido' });
   }
   if (!userId || !email) {
-    return res.status(400).json({ erro: 'userId e email são obrigatórios' });
+    return res.status(400).json({ erro: 'userId e email sao obrigatorios' });
   }
 
   const info = PLANOS[planoKey];
+  
+  console.log(`[PIX] Criando pagamento: plano=${planoKey}, userId=${userId}, email=${email}`);
   
   // Criar pagamento PIX via API do Mercado Pago
   const payload = JSON.stringify({
@@ -129,8 +139,23 @@ app.post('/criar-pagamento-pix', async (req, res) => {
             expiresAt: data.date_of_expiration
           });
         } else {
-          console.error('[PIX] Erro ao criar pagamento:', body);
-          res.status(500).json({ erro: 'Erro ao criar pagamento PIX', detalhes: data.message || body });
+          console.error('[PIX] Erro na resposta do Mercado Pago:');
+          console.error('[PIX] Status HTTP:', mpRes.statusCode);
+          console.error('[PIX] Body:', body);
+          
+          // Erros comuns do Mercado Pago
+          let mensagemErro = 'Erro ao criar pagamento PIX';
+          if (data.message) {
+            mensagemErro = data.message;
+          }
+          if (data.cause && data.cause.length > 0) {
+            mensagemErro = data.cause.map(c => c.description || c.code).join(', ');
+          }
+          if (mpRes.statusCode === 401) {
+            mensagemErro = 'Token do Mercado Pago invalido. Verifique MP_ACCESS_TOKEN no .env';
+          }
+          
+          res.status(500).json({ erro: mensagemErro, detalhes: data });
         }
       } catch (e) {
         console.error('[PIX] Erro ao processar resposta:', e.message);
